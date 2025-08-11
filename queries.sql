@@ -22,17 +22,33 @@ order by income
 limit 10
 
 --2 запрос
+with seller_tab  as (
+	select 
+		CONCAT(e.first_name,' ',e.last_name) as seller, --выбор имени фамилии
+		ROUND(AVG(s.quantity * p.price), 0) as average_income --средняя выручка за продажу
+	from sales as s
+	join employees as e
+		on s.sales_person_id=e.employee_id  
+	join products as p 
+		on s.product_id=p.product_id  
+	group by e.first_name , e.last_name
+),
+seller_avg as (
+	select 
+		ROUND(AVG(s.quantity * p.price), 0) as all_average
+	from sales as s
+	join products as p 
+		on s.product_id=p.product_id
+)
+
 select 
-	CONCAT(emp.first_name,' ',emp.last_name) as seller, --выбор имени фамилии
-	ROUND(SUM(s.quantity * p.price)/count(*), 0) as average_income --средняя выручка за продажу
-from sales as s
-join employees as emp 
-	on s.sales_person_id=emp.employee_id  
-join products as p 
-	on s.product_id=p.product_id  
-group by emp.first_name , emp.last_name
-order by average_income 
-limit 10
+st.seller, 
+st.average_income
+from seller_tab st
+where st.average_income < (select all_average from seller_avg)
+order by st.average_income 
+
+
 
 
 --3 запрос
@@ -52,7 +68,7 @@ group by
 	to_char(s.sale_date, 'Day'),
 	EXTRACT(ISODOW FROM s.sale_date)
 order by EXTRACT(ISODOW FROM s.sale_date), --соритровка по порядку дней недели
-income desc
+seller desc
 
 
 /*----------------------6шаг---------------------------*/
