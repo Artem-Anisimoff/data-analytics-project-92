@@ -2,11 +2,11 @@ SELECT
 	COUNT(customer_id) as customers_count
 FROM customers;
 
---запрос считает количество покупателей
+/*запрос считает количество покупателей*/
 
 /*---------5шаг-------------*/
 
---top_10_total_income.csv
+/*top_10_total_income.csv*/
 select 
 	CONCAT(emp.first_name,' ',emp.last_name) as seller, --выбор имени фамилии
 	count(s.sales_person_id) as operations, --кол-во операций
@@ -21,7 +21,7 @@ order by income
 limit 10
 /***/
 
--- lowest_average_income.csv
+/* lowest_average_income.csv*/
 with seller_tab  as (
 	select 
 		CONCAT(e.first_name,' ',e.last_name) as seller, --выбор имени фамилии
@@ -47,7 +47,7 @@ from seller_tab st
 where st.average_income < (select all_average from seller_avg)
 order by st.average_income 
 
---day_of_the_week_income.csv
+/*day_of_the_week_income.csv*/
 select 
 	CONCAT(emp.first_name,' ',emp.last_name) as seller, --выбор имени фамилии
 	TO_CHAR(s.sale_date, 'Day') AS day_of_week, --выбор по дням недели
@@ -68,7 +68,7 @@ seller desc
 
 /*----------------------6шаг---------------------------*/
 
---age_groups.csv
+/*age_groups.csv*/
 with young as (
 	select age
 	from customers
@@ -104,7 +104,7 @@ select
 from OLD
 /***/
 
---customers_by_month.csv 
+/*customers_by_month.csv */
 select 
 	TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month, --выбор даты в формате год-месяц
 	count(DISTINCT s.customer_id ) as total_customers, --кол-во покупателей
@@ -116,7 +116,7 @@ group by TO_CHAR(sale_date, 'YYYY-MM') --группировка по дате
 order by TO_CHAR(sale_date, 'YYYY-MM')
 
 
---special_offer.csv 
+/*special_offer.csv */
 with sale_number as (
 select 
 	s.customer_id,
