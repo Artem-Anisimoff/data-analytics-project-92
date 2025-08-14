@@ -4,10 +4,9 @@ FROM customers;
 
 --запрос считает количество покупателей
 
-/*---------------------------------------------------------*/
+/*---------5шаг-------------*/
 
---1 запрос
-
+--top_10_total_income.csv
 select 
 	CONCAT(emp.first_name,' ',emp.last_name) as seller, --выбор имени фамилии
 	count(s.sales_person_id) as operations, --кол-во операций
@@ -20,8 +19,9 @@ join products as p
 group by emp.first_name , emp.last_name 
 order by income
 limit 10
+/***/
 
---2 запрос
+-- lowest_average_income.csv
 with seller_tab  as (
 	select 
 		CONCAT(e.first_name,' ',e.last_name) as seller, --выбор имени фамилии
@@ -40,7 +40,6 @@ seller_avg as (
 	join products as p 
 		on s.product_id=p.product_id
 )
-
 select 
 st.seller, 
 st.average_income
@@ -48,11 +47,7 @@ from seller_tab st
 where st.average_income < (select all_average from seller_avg)
 order by st.average_income 
 
-
-
-
---3 запрос
-
+--day_of_the_week_income.csv
 select 
 	CONCAT(emp.first_name,' ',emp.last_name) as seller, --выбор имени фамилии
 	TO_CHAR(s.sale_date, 'Day') AS day_of_week, --выбор по дням недели
@@ -69,10 +64,11 @@ group by
 	EXTRACT(ISODOW FROM s.sale_date)
 order by EXTRACT(ISODOW FROM s.sale_date), --соритровка по порядку дней недели
 seller desc
-
+/***/
 
 /*----------------------6шаг---------------------------*/
 
+--age_groups.csv
 with young as (
 	select age
 	from customers
@@ -105,12 +101,10 @@ union all
 select 
 	'41+' as age_category,
 	count(age) as age_count
-from old
+from OLD
+/***/
 
-
-
-/*---------------------------------------------------------------*/
-
+--customers_by_month.csv 
 select 
 	TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month, --выбор даты в формате год-месяц
 	count(DISTINCT s.customer_id ) as total_customers, --кол-во покупателей
@@ -121,9 +115,8 @@ join products as p
 group by TO_CHAR(sale_date, 'YYYY-MM') --группировка по дате
 order by TO_CHAR(sale_date, 'YYYY-MM')
 
-/*----------------------------------------------------------------*/
 
-
+--special_offer.csv 
 with sale_number as (
 select 
 	s.customer_id,
@@ -135,7 +128,6 @@ join products as p
 	on s.product_id = p.product_id 
 where p.price = 0
 ) --нумерация всех 0 покупок
-
 select 
 	CONCAT(c.first_name,' ',c.last_name) as customer,
 	sn.sale_date,
