@@ -113,7 +113,7 @@ from old
 
 select 
 	TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month, --выбор даты в формате год-месяц
-	count(s.customer_id ) as total_customers, --кол-во покупателей
+	count(DISTINCT s.customer_id ) as total_customers, --кол-во покупателей
 	round(sum(s.quantity * p.price ), 0) as income 
 from sales as s
 join products as p 
