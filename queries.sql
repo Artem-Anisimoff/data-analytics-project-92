@@ -3,9 +3,6 @@ SELECT
 FROM
     customers;
 
-/* запрос считает количество покупателей */
-
-/* ---------5шаг------------- */
 
 /* top_10_total_income.csv */
 SELECT
@@ -27,6 +24,7 @@ ORDER BY
     income DESC
 LIMIT 10;
 
+
 /* lowest_average_income.csv */
 WITH seller_tab AS (
     SELECT
@@ -44,6 +42,7 @@ WITH seller_tab AS (
         e.first_name,
         e.last_name
 ),
+
 seller_avg AS (
     SELECT
         TRUNC(AVG(s.quantity * p.price), 0) AS all_average
@@ -53,15 +52,17 @@ seller_avg AS (
         products AS p
         ON s.product_id = p.product_id
 )
+
 SELECT
     st.seller,
     st.average_income
 FROM
     seller_tab st
 WHERE
-    st.average_income < (SELECT all_average FROM seller_avg)
+    st.average_income < (SELECT sa.all_average FROM seller_avg sa)
 ORDER BY
     st.average_income;
+
 
 /* day_of_the_week_income.csv */
 SELECT
@@ -85,7 +86,6 @@ ORDER BY
     EXTRACT(ISODOW FROM s.sale_date),
     seller;
 
-/* ----------------------6шаг--------------------------- */
 
 /* age_groups.csv */
 WITH young AS (
@@ -96,6 +96,7 @@ WITH young AS (
     WHERE
         age BETWEEN 16 AND 25
 ),
+
 average AS (
     SELECT
         age
@@ -104,6 +105,7 @@ average AS (
     WHERE
         age BETWEEN 26 AND 40
 ),
+
 old AS (
     SELECT
         age
@@ -112,23 +114,29 @@ old AS (
     WHERE
         age BETWEEN 41 AND 100
 )
+
 SELECT
     '16-25' AS age_category,
     COUNT(age) AS age_count
 FROM
     young
+
 UNION ALL
+
 SELECT
     '26-40' AS age_category,
     COUNT(age) AS age_count
 FROM
     average
+
 UNION ALL
+
 SELECT
     '40+' AS age_category,
     COUNT(age) AS age_count
 FROM
     old;
+
 
 /* customers_by_month.csv */
 SELECT
@@ -145,13 +153,17 @@ GROUP BY
 ORDER BY
     TO_CHAR(sale_date, 'YYYY-MM');
 
+
 /* special_offer.csv */
 WITH sale_number AS (
     SELECT
         s.customer_id,
         s.sale_date,
         s.sales_person_id,
-        ROW_NUMBER() OVER (PARTITION BY s.customer_id ORDER BY sale_date) AS sale_number
+        ROW_NUMBER() OVER (
+            PARTITION BY s.customer_id
+            ORDER BY s.sale_date
+        ) AS sale_number
     FROM
         sales AS s
     INNER JOIN
@@ -160,6 +172,7 @@ WITH sale_number AS (
     WHERE
         p.price = 0
 )
+
 SELECT
     CONCAT(c.first_name, ' ', c.last_name) AS customer,
     sn.sale_date,
