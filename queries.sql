@@ -1,11 +1,13 @@
-/* customer_count.csv */
+
+
+/* 
 SELECT
     COUNT(customer_id) AS customers_count
 FROM
     customers;
 
 
-/* top_10_total_income.csv */
+ top_10_total_income.csv 
 SELECT
     CONCAT(emp.first_name, ' ', emp.last_name) AS seller,
     COUNT(s.sales_person_id) AS operations,
@@ -26,7 +28,7 @@ ORDER BY
 LIMIT 10;
 
 
-/* lowest_average_income.csv */
+ lowest_average_income.csv 
 WITH seller_tab AS (
     SELECT
         CONCAT(e.first_name, ' ', e.last_name) AS seller,
@@ -67,7 +69,7 @@ ORDER BY
     st.average_income;
 
 
-/* day_of_the_week_income.csv */
+ day_of_the_week_income.csv 
 SELECT
     CONCAT(emp.first_name, ' ', emp.last_name) AS seller,
     TO_CHAR(s.sale_date, 'day') AS day_of_week,
@@ -90,7 +92,7 @@ ORDER BY
     seller;
 
 
-/* age_groups.csv */
+ age_groups.csv 
 WITH young AS (
     SELECT
         age
@@ -141,7 +143,7 @@ FROM
     old;
 
 
-/* customers_by_month.csv */
+ customers_by_month.csv 
 SELECT
     TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month,
     COUNT(DISTINCT s.customer_id) AS total_customers,
@@ -157,7 +159,7 @@ ORDER BY
     TO_CHAR(s.sale_date, 'YYYY-MM');
 
 
-/* special_offer.csv */
+ special_offer.csv 
 WITH sale_number AS (
     SELECT
         s.customer_id,
@@ -192,3 +194,4 @@ WHERE
     sn.sale_number = 1
 ORDER BY
     sn.customer_id;
+*/
