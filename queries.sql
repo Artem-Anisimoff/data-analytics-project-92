@@ -54,23 +54,3 @@ GROUP BY
     TO_CHAR(s.sale_date, 'YYYY-MM')
 ORDER BY
     TO_CHAR(s.sale_date, 'YYYY-MM');
-
-
-/* special_offer.csv */
-WITH sale_number AS (
-    SELECT
-        s.customer_id,
-        s.sale_date,
-        s.sales_person_id,
-        ROW_NUMBER() OVER (
-            PARTITION BY s.customer_id
-            ORDER BY s.sale_date
-        ) AS sale_number
-    FROM
-        sales AS s
-    INNER JOIN
-        products AS p
-        ON s.product_id = p.product_id
-    WHERE
-        p.price = 0
-)
