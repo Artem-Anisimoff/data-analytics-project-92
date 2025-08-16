@@ -58,8 +58,10 @@ SELECT
     st.average_income
 FROM
     seller_tab st
+CROSS JOIN
+    seller_avg sa
 WHERE
-    st.average_income < (SELECT sa.all_average FROM seller_avg sa)
+    st.average_income < sa.all_average
 ORDER BY
     st.average_income;
 
@@ -157,9 +159,9 @@ ORDER BY
 /* special_offer.csv */
 WITH sale_number AS (
     SELECT
-        s.customer_id,
-        s.sale_date,
-        s.sales_person_id,
+        s.customer_id AS customer_id,
+        s.sale_date AS sale_date,
+        s.sales_person_id AS sales_person_id,
         ROW_NUMBER() OVER (
             PARTITION BY s.customer_id
             ORDER BY s.sale_date
@@ -175,15 +177,15 @@ WITH sale_number AS (
 
 SELECT
     CONCAT(c.first_name, ' ', c.last_name) AS customer,
-    sn.sale_date,
+    sn.sale_date AS sale_date,
     CONCAT(e.first_name, ' ', e.last_name) AS seller
 FROM
-    sale_number sn
+    sale_number AS sn
 INNER JOIN
-    customers c
+    customers AS c
     ON sn.customer_id = c.customer_id
 INNER JOIN
-    employees e
+    employees AS e
     ON sn.sales_person_id = e.employee_id
 WHERE
     sn.sale_number = 1
