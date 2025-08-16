@@ -1,3 +1,4 @@
+/* customer_count.csv */
 SELECT
     COUNT(customer_id) AS customers_count
 FROM
