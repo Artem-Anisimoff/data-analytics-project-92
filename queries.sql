@@ -1,5 +1,5 @@
 SELECT
-	COUNT(customer_id) AS customers_count
+    COUNT(customer_id) AS customers_count
 FROM
     customers;
 
@@ -44,7 +44,7 @@ WITH seller_tab AS (
 ),
 
 seller_avg AS (
-	SELECT
+    SELECT
         TRUNC(AVG(s.quantity * p.price), 0) AS all_average
     FROM
         sales AS s
@@ -91,7 +91,7 @@ ORDER BY
 
 /* age_groups.csv */
 WITH young AS (
-	SELECT
+    SELECT
         age
     FROM
         customers
@@ -100,7 +100,7 @@ WITH young AS (
 ),
 
 average AS (
-	SELECT
+    SELECT
         age
     FROM
         customers
@@ -109,7 +109,7 @@ average AS (
 ),
 
 old AS (
-	SELECT
+    SELECT
         age
     FROM
         customers
@@ -176,7 +176,7 @@ WITH sale_number AS (
 )
 
 SELECT
-	sn.sale_date,
+    sn.sale_date,
     CONCAT(c.first_name, ' ', c.last_name) AS customer,
     CONCAT(e.first_name, ' ', e.last_name) AS seller
 FROM
