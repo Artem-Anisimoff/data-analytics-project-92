@@ -1,81 +1,139 @@
-SELECT COUNT(customer_id) AS customers_count
-FROM customers;
+-- customers_count.csv
+select count(customer_id) as customers_count
+from
+    customers;
 
-/* top_10_total_income.csv */
-SELECT CONCAT(emp.first_name, ' ', emp.last_name) AS seller,
-       COUNT(s.sales_person_id) AS operations,
-       TRUNC(SUM(s.quantity * p.price), 0) AS income
-FROM sales AS s
-INNER JOIN employees AS emp ON s.sales_person_id = emp.employee_id
-INNER JOIN products AS p ON s.product_id = p.product_id
-GROUP BY emp.first_name,
-         emp.last_name
-ORDER BY income DESC
-LIMIT 10;
+-- top_10_total_income.csv
+select
+    concat(emp.first_name, ' ', emp.last_name) as seller,
+    count(s.sales_person_id) as operations,
+    trunc(sum(s.quantity * p.price), 0) as income
+from
+    sales as s
+inner join
+    employees as emp
+    on s.sales_person_id = emp.employee_id
+inner join
+    products as p
+    on s.product_id = p.product_id
+group by
+    emp.first_name,
+    emp.last_name
+order by
+    income desc
+limit 10;
 
-/* lowest_average_income.csv */
-SELECT CONCAT(e.first_name, ' ', e.last_name) AS seller,
-       trunc(AVG(s.quantity * p.price), 0) AS average_income
-FROM sales AS s
-INNER JOIN employees AS e ON s.sales_person_id = e.employee_id
-INNER JOIN products AS p ON s.product_id = p.product_id
-GROUP BY e.first_name,
-         e.last_name
-HAVING AVG(s.quantity * p.price) <
-  (SELECT AVG(s2.quantity * p2.price)
-   FROM sales AS s2
-   INNER JOIN products AS p2 ON s2.product_id = p2.product_id)
-ORDER BY average_income /* day_of_the_week_income.csv */
-SELECT CONCAT(emp.first_name, ' ', emp.last_name) AS seller,
-       TO_CHAR(s.sale_date, 'day') AS day_of_week,
-       TRUNC(SUM(s.quantity * p.price), 0) AS income
-FROM sales AS s
-INNER JOIN employees AS emp ON s.sales_person_id = emp.employee_id
-INNER JOIN products AS p ON s.product_id = p.product_id
-GROUP BY emp.first_name,
-         emp.last_name,
-         TO_CHAR(s.sale_date, 'day'),
-         EXTRACT(ISODOW
-                 FROM s.sale_date)
-ORDER BY EXTRACT(ISODOW
-                 FROM s.sale_date),
-         seller;
+-- lowest_average_income.csv
+select
+    concat(e.first_name, ' ', e.last_name) as seller,
+    trunc(avg(s.quantity * p.price), 0) as average_income
+from
+    sales as s
+inner join
+    employees as e
+    on s.sales_person_id = e.employee_id
+inner join
+    products as p
+    on s.product_id = p.product_id
+group by
+    e.first_name,
+    e.last_name
+having
+    avg(s.quantity * p.price) < (
+        select avg(s2.quantity * p2.price)
+        from
+            sales as s2
+        inner join
+            products as p2
+            on s2.product_id = p2.product_id
+    )
+order by
+    average_income;
 
-/* age_groups.csv */
-SELECT CASE
-           WHEN age BETWEEN 16 AND 25 THEN '16-25'
-           WHEN age BETWEEN 26 AND 40 THEN '26-40'
-           WHEN age BETWEEN 41 AND 100 THEN '40+'
-       END AS age_category,
-       COUNT(*) AS age_count
-FROM customers
-GROUP BY age_category
-ORDER BY age_category;
+-- day_of_the_week_income.csv
+select
+    concat(emp.first_name, ' ', emp.last_name) as seller,
+    to_char(s.sale_date, 'day') as day_of_week,
+    trunc(sum(s.quantity * p.price), 0) as income
+from
+    sales as s
+inner join
+    employees as emp
+    on s.sales_person_id = emp.employee_id
+inner join
+    products as p
+    on s.product_id = p.product_id
+group by
+    emp.first_name,
+    emp.last_name,
+    to_char(s.sale_date, 'day'),
+    dayofweek(s.sale_date) -- линтер ругался на extract(isodow from s.sale_date)
+order by
+    dayofweek(s.sale_date), -- та же ситуация
+    seller;
 
-/* customers_by_month.csv */
-SELECT TO_CHAR(s.sale_date, 'YYYY-MM') AS selling_month,
-       COUNT(DISTINCT s.customer_id) AS total_customers,
-       TRUNC(SUM(s.quantity * p.price), 0) AS income
-FROM sales AS s
-INNER JOIN products AS p ON s.product_id = p.product_id
-GROUP BY TO_CHAR(s.sale_date, 'YYYY-MM')
-ORDER BY TO_CHAR(s.sale_date, 'YYYY-MM');
+-- age_groups.csv
+select
+    case
+        when age between 16 and 25 then '16-25'
+        when age between 26 and 40 then '26-40'
+        when age between 41 and 100 then '40+'
+    end as age_category,
+    count(*) as age_count
+from
+    customers
+group by
+    age_category
+order by
+    age_category;
 
-/* special_offer.csv */
-WITH sale_number AS
-  (SELECT s.customer_id,
-          s.sale_date,
-          s.sales_person_id,
-          ROW_NUMBER() OVER (PARTITION BY s.customer_id
-                             ORDER BY s.sale_date) AS sale_number
-   FROM sales AS s
-   INNER JOIN products AS p ON s.product_id = p.product_id
-   WHERE p.price = 0)
-SELECT sn.sale_date,
-       CONCAT(c.first_name, ' ', c.last_name) AS customer,
-       CONCAT(e.first_name, ' ', e.last_name) AS seller
-FROM sale_number AS sn
-INNER JOIN customers AS c ON sn.customer_id = c.customer_id
-INNER JOIN employees AS e ON sn.sales_person_id = e.employee_id
-WHERE sn.sale_number = 1
-ORDER BY sn.customer_id;
+-- customers_by_month.csv
+select
+    to_char(s.sale_date, 'YYYY-MM') as selling_month,
+    count(distinct s.customer_id) as total_customers,
+    trunc(sum(s.quantity * p.price), 0) as income
+from
+    sales as s
+inner join
+    products as p
+    on s.product_id = p.product_id
+group by
+    to_char(s.sale_date, 'YYYY-MM')
+order by
+    to_char(s.sale_date, 'YYYY-MM');
+
+-- special_offer.csv
+with sale_number as (
+    select
+        s.customer_id,
+        s.sale_date,
+        s.sales_person_id,
+        row_number() over (
+            partition by s.customer_id
+            order by s.sale_date
+        ) as sale_number
+    from
+        sales as s
+    inner join
+        products as p
+        on s.product_id = p.product_id
+    where
+        p.price = 0
+)
+
+select
+    sn.sale_date,
+    concat(c.first_name, ' ', c.last_name) as customer,
+    concat(e.first_name, ' ', e.last_name) as seller
+from
+    sale_number as sn
+inner join
+    customers as c
+    on sn.customer_id = c.customer_id
+inner join
+    employees as e
+    on sn.sales_person_id = e.employee_id
+where
+    sn.sale_number = 1
+order by
+    sn.customer_id;
